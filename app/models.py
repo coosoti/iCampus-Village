@@ -1,6 +1,42 @@
 from flask_login import UserMixin, AnonymousUserMixin
-from . import db, login_manager
+from . import db, admin, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True)
+    default = db.Column(db.Boolean, default=False, index=True)
+    permissions = db.Column(db.Integer)
+    users = db.relationship('User', backref='role', lazy='dynamic') 
+
+    
+
+    @staticmethod
+    def insert_roles():
+        roles = {
+            'User': (Permission.FOLLOW |
+                    Permission.COMMENT |
+                    Permission.WRITE_ARTICLES, True),
+
+            'Moderator': (Permission.FOLLOW |
+                    Permission.COMMENT |
+                    Permission.WRITE_ARTICLES |
+                    Permission.MODERATE_COMMENTS, False),
+
+            'Administrator': (0xff, False)
+        }
+
+        for r in roles:
+            role = Role.query.filter_by(name=r).first()
+            if role is None:
+                role = Role(name=r)
+            role.permissions = roles[r][0]
+            role.default = roles[r][1]
+            db.session.add(role)
+        db.session.commit()
 
 class User(UserMixin, db.Model):
     __tablename__='users'
@@ -37,6 +73,9 @@ class User(UserMixin, db.Model):
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
 
+    def __str__(self):
+        return self.username
+
 class AnonymousUser(AnonymousUserMixin):
     def can(self, permissions):
         return False
@@ -56,36 +95,27 @@ class Permission:
     MODERATE_COMMENTS = 0x08
     ADMINISTER = 0x80
 
-class Role(db.Model):
-    __tablename__ = 'roles'
+class Category(db.Model):
+    __tablename__ = 'categories'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), unique=True)
-    default = db.Column(db.Boolean, default=False, index=True)
-    permissions = db.Column(db.Integer)
-    users = db.relationship('User', backref='role', lazy='dynamic') 
+    name = db.Column(db.String(64))
+    overview = db.Column(db.Text)
+    careers = db.relationship('Career', backref='category', lazy='dynamic')
 
-    
+    def __str__(self):
+        return self.name
 
-    @staticmethod
-    def insert_roles():
-        roles = {
-            'User': (Permission.FOLLOW |
-                    Permission.COMMENT |
-                    Permission.WRITE_ARTICLES, True),
+class Career(db.Model):
+    __tablename__ = 'careers'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+    overview = db.Column(db.Text)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
 
-            'Moderator': (Permission.FOLLOW |
-                    Permission.COMMENT |
-                    Permission.WRITE_ARTICLES |
-                    Permission.MODERATE_COMMENTS, False),
-
-            'Administrator': (0xff, False)
-        }
-
-        for r in roles:
-            role = Role.query.filter_by(name=r).first()
-            if role is None:
-                role = Role(name=r)
-            role.permissions = roles[r][0]
-            role.default = roles[r][1]
-            db.session.add(role)
-        db.session.commit()        
+    def __str__(self):
+        return self.name
+        
+admin.add_view(ModelView(User, db.session))
+admin.add_view(ModelView(Category, db.session))
+admin.add_view(ModelView(Career, db.session))
+admin.add_view(ModelView(Role, db.session))
