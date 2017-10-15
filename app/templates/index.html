@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+	<div class="row">
+		<div id="sidebar" class="col-sm-4">
+			<ul class="list-group">
+			    <li class="list-group-item disabled">Categories</li>
+				<li class="list-group-item" {% if not category %}class="selected"{% endif %}>
+					<a href="/">All</a>
+				</li>
+				{% for category in categories %}
+				<li class="list-group-item">
+					<a href="{{ url_for('main.home', id=category.id) }}">{{ category.name }}</a>
+				</li>
+				{% endfor %}
+			</ul>
+		</div>
+		<div id="main" class="col-sm-8">
+			<ul class="media-list">
+				{% for career in careers %}
+				<li class="media">
+					<div class="media-left">
+					    <a href="#">
+					        <img class="media-object" src="..." alt="...">
+					    </a>
+					</div>
+					<div class="media-body">
+				        <h4 class="media-heading">{{ career.name }}</h4>		
+						{{ career.overview }}
+				    </div>	
+				</li>
+				{% endfor %}
+			</ul>
+	    </div>
+	</div>
+{% endblock %}

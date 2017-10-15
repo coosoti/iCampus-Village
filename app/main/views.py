@@ -6,31 +6,22 @@ from flask_login import current_user
 from app import db
 
 @main.route('/')
-def home():
+@main.route('/category/<int:id>')
+def home(id=None):
+    categories = Category.query.all()
     careers = Career.query.all()
-    return render_template('index.html', careers=careers)
+    category = Category.query.filter_by(id=id).first()
 
-# @main.route('/create_category', methods=['GET', 'POST'])
-# def create_category():
-#     form = CategoryForm()
-#     if form.validate_on_submit():
-#         category = Category(name=form.name.data,
-#                             overview = form.overview.data)
-#         db.session.add(category)
-#         print(category)
-#         return redirect(url_for('.home'))
-#     return render_template('home.html', form=form)                        
+    if category:
+       careers = category.careers
+    return render_template('index.html', category=category, careers=careers, categories=categories)
 
-# @main.route('/create_career', methods=['GET', 'POST'])
-# def create_career():
-#     form = CareerForm()
-#     if form.validate_on_submit():
-#         career = Career(name=form.name.data,
-#                             overview = form.overview.data)
-#         db.session.add(career)
-#         print(career)
-#         return redirect(url_for('.home'))
-#     return render_template('home.html', form=form)
+# @main.route('/category/<int:id>')
+# def career_list_by_category(id):
+#     category = Category.query.filter_by(id=id).first()
+#     if category:
+#         data = category.careers
+#     return render_template('index.html', data=data, category=category)    
 
 @main.route('/about')
 def about():
