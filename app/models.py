@@ -55,7 +55,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(128))
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-
+    comments = db.relationship('Comment', backref='owner', lazy='dynamic')
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -126,17 +126,25 @@ class Career(db.Model):
     __tablename__ = 'careers'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-    # slug = db.Column(db.String(200), nullable=True)
+    slug = db.Column(db.String(200), nullable=True)
     overview = db.Column(db.Text)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    comments = db.relationship('Comment', backref='career', lazy='dynamic')
     tags = db.relationship('Tag', secondary=career_tags)
 
     def __str__(self):
         return self.name
 
-    # def __init__(self, name):
-    #     self.name = name
-    #     self.slug = slugify(name)
+    def __init__(self, name):
+        self.name = name
+        self.slug = slugify(name)
+
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text)
+    career_id = db.Column(db.Integer, db.ForeignKey('careers.id'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id')) 
 
  
 admin.add_view(ModelView(User, db.session))
@@ -144,4 +152,5 @@ admin.add_view(ModelView(Category, db.session))
 admin.add_view(ModelView(Career, db.session))
 admin.add_view(ModelView(Role, db.session))
 admin.add_view(ModelView(Tag, db.session))
+admin.add_view(ModelView(Comment, db.session))
 

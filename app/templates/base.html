@@ -1,4 +1,9 @@
 {% extends "bootstrap/base.html" %}
+{% block head %}
+    {{ super() }}
+    <link rel="" href="{{ url_for('static', filename = 'css/base.html') }}"
+    type="image/x-icon">
+{% endblock %}
 
 {% block title %}iCampus{% endblock %}
 
@@ -19,9 +24,11 @@
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if current_user.is_authenticated %}
+                <li style="margin-top: 15px"><strong>{{ current_user.username | capitalize }}</strong></li>
                 <li><a href="{{ url_for('auth.logout') }}">Sign Out</a></li>
                 {% else %}
                 <li><a href="{{ url_for('auth.login') }}">Sign In</a></li>

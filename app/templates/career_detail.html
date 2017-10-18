@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block page_content %}
+<div class="row">
+	<div class="col-sm-8">
+        <div class="thumbnail">
+	        <img src="..." alt="...">
+	        <div class="caption">
+		        <h3>{{ career.name }}</h3>
+		        <p>{{ career.overview }}</p>
+		    </div>
+		    <div>
+		    	<div class="col-md-4">
+                    {{ wtf.quick_form(form) }}
+                </div> 
+		    </div>
+		    {% for comment in comments %}
+		    <h6>Comments</h6>
+		    <p>{{ comment.content }}</p>
+		    {% endfor %}
+        </div>
+    </div>
+	<div class="col-sm-4">
+		<div>
+			<h4>Specialization</h4>
+		</div>				
+	</div>
+</div>
+{% endblock %}
+<div class="row">
+    <div class="col-sm-6 col-md-4">
+        <div class="thumbnail">
+	        <img src="..." alt="...">
+	        <div class="caption">
+		        <h3>{{ career.name }}</h3>
+		        <p>{{ career.overview }}</p>
+		    </div>
+        </div>
+    </div>
+</div>	
