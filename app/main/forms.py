@@ -16,5 +16,5 @@ class CategoryForm(FlaskForm):
 
 class CommentForm(FlaskForm):
 	content = StringField('Add Comment', validators=[DataRequired()])
-	submit = SubmitField('Comment')
+	submit = SubmitField('Add Comment')
 
