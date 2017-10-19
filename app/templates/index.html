@@ -2,7 +2,7 @@
 
 {% block page_content %}
 	<div class="row">
-		<div id="sidebar" class="col-sm-3">
+		<div class="col-sm-3">
 			<ul class="list-group">
 			    <li class="list-group-item disabled">Categories</li>
 				<li class="list-group-item" {% if not category %}class="selected"{% endif %}>
@@ -15,7 +15,7 @@
 				{% endfor %}
 			</ul>
 		</div>
-		<div id="main" class="col-sm-6">
+		<div class="col-sm-6">
 			<ul class="media-list">
 				{% for career in careers %}
 				<li class="media">

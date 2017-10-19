@@ -23,10 +23,11 @@ def career_detail(id):
 
     if form.validate_on_submit():
         new_comment =Comment(content=form.content.data,
-                   owner=current_user.username)
+                             career=career,
+                             owner=current_user._get_current_object())
         db.session.add(new_comment)
         db.session.commit()
-        return redirect(url_for('career_detail'))                 
+        return redirect(url_for('main.career_detail', id=career.id))                 
     return render_template('career_detail.html', career=career, comments=comments, form=form)    
 
 @main.route('/about')

@@ -1,8 +1,8 @@
 {% extends "bootstrap/base.html" %}
 {% block head %}
     {{ super() }}
-    <link rel="" href="{{ url_for('static', filename = 'css/base.html') }}"
-    type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/comment.css') }}">
 {% endblock %}
 
 {% block title %}iCampus{% endblock %}
@@ -28,10 +28,11 @@
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if current_user.is_authenticated %}
-                <li style="margin-top: 15px"><strong>{{ current_user.username | capitalize }}</strong></li>
+                <li style=""><a href="">{{ current_user.username | capitalize }}</a></li>
                 <li><a href="{{ url_for('auth.logout') }}">Sign Out</a></li>
                 {% else %}
                 <li><a href="{{ url_for('auth.login') }}">Sign In</a></li>
+                <li><a href="{{ url_for('auth.register') }}">Register</a></li>
                 {% endif %}
             </ul>
         </div>

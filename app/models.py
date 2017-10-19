@@ -135,9 +135,9 @@ class Career(db.Model):
     def __str__(self):
         return self.name
 
-    def __init__(self, name):
-        self.name = name
-        self.slug = slugify(name)
+    # def __init__(self, name):
+    #     self.name = name
+    #     self.slug = slugify(name)
 
 class Comment(db.Model):
     __tablename__ = 'comments'
