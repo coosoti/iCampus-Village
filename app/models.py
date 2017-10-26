@@ -1,10 +1,23 @@
 from flask_login import UserMixin, AnonymousUserMixin
 from . import db, admin, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_admin import Admin
+from sqlalchemy.event import listens_for
+from flask_admin import Admin, form
 from flask_admin.contrib.sqla import ModelView
-from flask import current_app
-import slugify  
+from flask import current_app, url_for
+from flask_admin.form import rules
+import slugify
+import os  
+import os.path as op
+from jinja2 import Markup
+
+# filedir = os.path.abspath(os.path.dirname(__file__))
+
+file_path = op.join(op.dirname(__file__), 'static')
+try:
+    os.mkdir(file_path)
+except OSError:
+    pass
 
 class Permission:
     FOLLOW = 0x01
@@ -146,11 +159,55 @@ class Comment(db.Model):
     career_id = db.Column(db.Integer, db.ForeignKey('careers.id'))
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id')) 
 
- 
+class CareerImage(db.Model):
+    __tablename__ = 'careerimage'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+    path = db.Column(db.String(128))
+
+    def __str__(self):
+        return self.name
+
+@listens_for(CareerImage, 'after_delete')
+def del_image(mapper, connection, target):
+    if target.path:
+        # Delete image
+        try:
+            os.remove(op.join(file_path, target.path))
+        except OSError:
+            pass
+
+        # Delete thumbnail
+        try:
+            os.remove(op.join(file_path,
+                              form.thumbgen_filename(target.path)))
+        except OSError:
+            pass
+
+class ImageView(ModelView):
+    def _list_thumbnail(view, context, model, name):
+        if not model.path:
+            return ''
+
+        return Markup('<img src="%s">' % url_for('static',
+                                                 filename=form.thumbgen_filename(model.path)))
+
+    column_formatters = {
+        'path': _list_thumbnail
+    }
+
+
+    form_extra_fields = {
+        'path': form.ImageUploadField('CareerImage',
+                                      base_path=file_path,
+                                      thumbnail_size=(100, 100, True))
+    }
+
 admin.add_view(ModelView(User, db.session))
 admin.add_view(ModelView(Category, db.session))
 admin.add_view(ModelView(Career, db.session))
 admin.add_view(ModelView(Role, db.session))
 admin.add_view(ModelView(Tag, db.session))
 admin.add_view(ModelView(Comment, db.session))
+admin.add_view(ImageView(CareerImage, db.session))
 
