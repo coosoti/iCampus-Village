@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+
+<div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Add Category</h4>
+           </div>
+        <div class="modal-body">
+	        {% if current_user.can(Permission.WRITE) %}
+		        {{ wtf.quick_form(form) }}
+		    {% endif %}	
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal"></button>
+        </div>
+    </div>    
+</div>
+	
+{% endblock %}
+

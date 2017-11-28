@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+
+<div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">{{ category.name }}</h4>
+           </div>
+        <div class="modal-body">
+	       <!--  <h3>{{ category.name }}</h3> -->
+			<p>{{ category.overview }}</p>	
+        </div>
+        <div class="modal-footer">
+            <a href="{{ url_for('main.edit_cat', id=category.id) }}" type="button" class="btn btn-default" data-dismiss="modal">Edit</a>
+            <a href="{{ url_for('main.delete_cat', id=category.id) }}" type="button" class="btn btn-default" data-dismiss="modal">Delete</a>
+        </div>
+    </div>
+</div>    
+
+{% endblock %}
+<div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Add Category</h4>
+           </div>
+        <div class="modal-body">
+	        {% if current_user.can(Permission.WRITE) %}
+		        {{ wtf.quick_form(form) }}
+		    {% endif %}	
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Edit</button>
+        </div>
+    </div>    
+
+<div class="row">
+  <div class="col-sm-6 col-md-8">
+    <div class="thumbnail">
+      <img src="..." alt="...">
+      <div class="caption">
+      	<h3>{{ category.name }}</h3>
+		<p>{{ category.overview }}</p>
+       </div>
+    </div>
+  </div>

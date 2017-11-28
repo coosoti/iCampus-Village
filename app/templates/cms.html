@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+
+<div>
+	<p>This page allows you to manage content of the website as may be needed</p>
+	<a href="/cms/create_cat" type="button" class="btn btn-primary btn-lg">
+	  	Create Category
+	</a>
+
+	<a href="/cms/all-careers/" type="button" class="btn btn-primary btn-lg">
+	  	Careers CMS
+	</a>
+	<hr/>
+
+	<ul class="media-list">
+		{% for category in categories %}
+		<li class="media">
+		    <div class="media-left">
+		        <a href="#">
+		            <img class="media-object" src="..." alt="...">
+		        </a>
+		    </div>
+		    <div class="media-body">
+		        <h4 class="media-heading"><a href="{{ url_for('main.ret_cat', id=category.id) }}">{{ category.name }}</a></h4>      
+				<p class="">
+					{{ category.overview }}
+				</p><hr>
+				{% endfor %}
+		    </div>
+		</li> 
+    </ul>
+</div>
+
+	
+{% endblock %}

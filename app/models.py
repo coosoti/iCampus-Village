@@ -7,11 +7,11 @@ from flask import current_app
 import slugify  
 
 class Permission:
-    FOLLOW = 0x01
-    COMMENT = 0x02
-    WRITE_ARTICLES = 0x04
-    MODERATE_COMMENTS = 0x08
-    ADMINISTER = 0x80
+    FOLLOW = 1
+    COMMENT = 2
+    WRITE = 4
+    MODERATE = 8
+    ADMIN = 16
 
 class Role(db.Model):
     __tablename__ = 'roles'
@@ -21,32 +21,52 @@ class Role(db.Model):
     permissions = db.Column(db.Integer)
     users = db.relationship('User', backref='role', lazy='dynamic') 
     
-    def __str__(self):
-        return self.name
+    def __init__(self, **kwargs):
+        super(Role, self).__init__(**kwargs)
+        if self.permissions is None:
+            self.permissions = 0
+
+    # def __str__(self):
+    #     return self.name
 
     @staticmethod
     def insert_roles():
         roles = {
-            'User': (Permission.FOLLOW |
-                    Permission.COMMENT |
-                    Permission.WRITE_ARTICLES, True),
+            'User': [Permission.FOLLOW, Permission.COMMENT],
 
-            'Moderator': (Permission.FOLLOW |
-                    Permission.COMMENT |
-                    Permission.WRITE_ARTICLES |
-                    Permission.MODERATE_COMMENTS, False),
+            'Moderator': [Permission.FOLLOW, Permission.COMMENT, Permission.WRITE, Permission.MODERATE],
 
-            'Administrator': (0xff, False)
+            'Administrator': [Permission.FOLLOW, Permission.COMMENT, Permission.WRITE, Permission.MODERATE, Permission.ADMIN]
         }
 
+        default_role = 'User'
         for r in roles:
             role = Role.query.filter_by(name=r).first()
             if role is None:
                 role = Role(name=r)
-            role.permissions = roles[r][0]
-            role.default = roles[r][1]
+            role.reset_permissions()
+            for perm in roles[r]:    
+                role.add_permission(perm)
+            role.default = (role.name == default_role)
             db.session.add(role)
         db.session.commit()
+
+    def add_permission(self, perm):
+        if not self.has_permission(perm):
+            self.permissions += perm
+
+    def remove_permission(self, perm):
+        if not self.has_permission(perm):
+            self.permissions -= perm
+
+    def reset_permissions(self):
+        self.permissions = 0
+
+    def has_permission(self, perm):
+        return self.permissions & perm == perm
+
+    def __repr__(self):
+        return '<Role %r>' % self.name
 
 class User(UserMixin, db.Model):
     __tablename__='users'
@@ -61,7 +81,7 @@ class User(UserMixin, db.Model):
         super(User, self).__init__(**kwargs)
         if self.role is None:
             if self.email == current_app.config['FLASKY_ADMIN']:
-                self.role = Role.query.filter_by(permissions=0xff).first()
+                self.role = Role.query.filter_by(name='Administrator').first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
                 
@@ -76,12 +96,11 @@ class User(UserMixin, db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    def can(self, permissions):
-        return self.role is not None and \
-             (self.role.permissions % permissions) == permissions
+    def can(self, perm):
+        return self.role is not None and self.role.has_permission(perm)
 
     def is_administrator(self):
-        return self.can(Permission.ADMINISTER)
+        return self.can(Permission.ADMIN)
 
     def __str__(self):
         return self.username
