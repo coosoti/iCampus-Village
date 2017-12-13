@@ -4,7 +4,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask import current_app
-import slugify  
+
+
 
 class Permission:
     FOLLOW = 1
@@ -145,18 +146,19 @@ class Career(db.Model):
     __tablename__ = 'careers'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-    slug = db.Column(db.String(200), nullable=True)
     overview = db.Column(db.Text)
+    image_url = db.Column(db.String, default=None, nullable=True)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
     comments = db.relationship('Comment', backref='career', lazy='dynamic')
     tags = db.relationship('Tag', secondary=career_tags)
 
+    def __init__(self, name, overview, image_url):
+        self.name = name
+        self.overview = overview 
+        self.image_url = image_url
+        
     def __str__(self):
         return self.name
-
-    # def __init__(self, name):
-    #     self.name = name
-    #     self.slug = slugify(name)
 
 class Comment(db.Model):
     __tablename__ = 'comments'

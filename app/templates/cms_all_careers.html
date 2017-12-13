@@ -10,19 +10,23 @@
 			{% for career in careers %}
 			<li class="media">
 				<div class="media-left">
-				    <a href="#">
-				        <img class="media-object" src="..." alt="...">
-				    </a>
+					{% if career.image_url %}
+				    <img class="media-object img-resposive cat-images" src="{{ url_for('static', filename='images/' + career.image_url) }}" alt="..."/>
+
+				    {% else %}
+					<img class="media-object img-resposive cat-images" src="{{ url_for('static', filename = 'images/robtics.jpeg') }}" alt="...">
+					{% endif %}
 				</div>
 				<div class="media-body">
 			        <h4 class="media-heading"><a href="{{ url_for('main.ret_career', id=career.id) }}">{{ career.name }}</a></h4>
 			        <p>{{ career.overview | truncate(200) }}</p>
 			        <a class="btn btn-primary" href="{{ url_for('main.ret_career', id=career.id) }}">Read More</a>
 			    </div>	
-			</li>
+			</li><hr>
 			{% endfor %}
 		</ul>
     </div>
 
 {% endblock %}
+
 

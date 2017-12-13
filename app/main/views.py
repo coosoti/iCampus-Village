@@ -1,9 +1,20 @@
+import os
 from . import main
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, request, url_for, flash, current_app
 from .forms import CareerForm, CategoryForm, CommentForm
 from ..models import Category, Career, Permission, User, Comment
 from flask_login import current_user
-from app import db
+from werkzeug import secure_filename
+from app import db, ALLOWED_EXTENSIONS
+from sqlalchemy.orm.util import join
+import app 
+
+
+# Handling images
+app.config['UPLOAD_FOLDER'] = os.path.realpath('.') + '/app/static/images'
+
+def allowed_file(filename):
+    return '.' in filename and filename.lower().rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 @main.route('/')
 @main.route('/category/<int:id>')
@@ -11,9 +22,15 @@ def home(id=None):
     categories = Category.query.all()
     careers = Career.query.all()
     category = Category.query.filter_by(id=id).first()
+    page = request.args.get('page', 1, type=int)
+    pagination = Career.query.paginate(page, per_page=current_app.config['FLASKY_CAREERS_PER_PAGE'], error_out=False)
     if category:
-       careers = category.careers
-    return render_template('index.html', category=category, careers=careers, categories=categories)
+        # page = request.args.get('page', 1, type=int)
+        pagination = category.careers.paginate(page, per_page=current_app.config['FLASKY_CAREERS_PER_PAGE'], error_out=False)
+        # careers = category.careers
+    careers = pagination.items
+
+    return render_template('index.html', category=category, careers=careers, categories=categories, pagination=pagination)
 
 # CRUD functionalities for categories models
 @main.route('/cms/', methods=['GET', 'POST'])
@@ -36,7 +53,6 @@ def create_category():
         new_category = Category(name=form.name.data, overview=form.overview.data)
         db.session.add(new_category)
         return redirect(url_for('main.cms'))
-    print(current_user.role.permissions)    
     return render_template('create_cat.html', form=form)     
 
 # Edit Category CMS
@@ -70,14 +86,21 @@ def delete_cat(id):
 # Create Career in CMS
 @main.route('/cms/create_career', methods=['GET', 'POST'])
 def create_career():
-    form = CareerForm()
+    form = CareerForm(request.form, csrf_enabled=False)
     if current_user.can(Permission.WRITE) and form.validate_on_submit():
-        # print(current_user.username)
-        new_career = Career(name=form.name.data, overview=form.overview.data)
+        name=form.name.data
+        overview=form.overview.data
+        image = request.files['image']
+        filename = ''
+        if image and allowed_file(image.filename):
+            filename = secure_filename(image.filename)
+            image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        new_career = Career(name, overview, filename)
+        print(filename)
         db.session.add(new_career)
         return redirect(url_for('main.all_careers'))
     print(current_user.role.permissions)    
-    return render_template('create_career.html', form=form)     
+    return render_template('create_test.html', form=form)     
 
 
 # Retrieve all careers in CMS
@@ -137,3 +160,5 @@ def career_detail(id):
 @main.route('/about')
 def about():
     return render_template('about.html')
+
+ 

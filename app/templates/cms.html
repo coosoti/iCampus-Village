@@ -19,17 +19,17 @@
 		<li class="media">
 		    <div class="media-left">
 		        <a href="#">
-		            <img class="media-object" src="..." alt="...">
+		            <img class="media-object img-resposive cat-images" src="{{ url_for('static', filename = 'images/information-technology.jpeg') }}" alt="...">
 		        </a>
 		    </div>
 		    <div class="media-body">
 		        <h4 class="media-heading"><a href="{{ url_for('main.ret_cat', id=category.id) }}">{{ category.name }}</a></h4>      
 				<p class="">
 					{{ category.overview }}
-				</p><hr>
-				{% endfor %}
-		    </div>
-		</li> 
+				</p>		
+		    </div> 
+		</li><hr>
+		{% endfor %}		
     </ul>
 </div>
 

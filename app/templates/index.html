@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
+{% import "_macros.html" as macros %}
 
 {% block page_content %}
 	<div class="row">
 		<div class="col-sm-3">
 			<ul class="list-group">
 			    <li class="list-group-item disabled">Categories</li>
-				<li class="list-group-item" {% if not category %}class="selected"{% endif %}>
+				<li class="list-group-item" {% if not category %} class="selected"{% endif %}>
 					<a href="/">All</a>
 				</li>
 				{% for category in categories %}
@@ -21,7 +22,7 @@
 				<li class="media">
 					<div class="media-left">
 					    <a href="#">
-					        <img class="media-object" src="..." alt="...">
+					        <img class="media-object img-resposive cat-images" src="{{ url_for('static', filename = 'images/robtics.jpeg') }}" alt="...">
 					    </a>
 					</div>
 					<div class="media-body">
@@ -32,6 +33,9 @@
 				</li>
 				{% endfor %}
 			</ul>
+			<div class="pagination">
+				{{ macros.pagination_widget(pagination, '.home')}}
+			</div>
 	    </div>
 	</div>
 {% endblock %}

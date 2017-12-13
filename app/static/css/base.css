@@ -4,6 +4,10 @@ h1, h2, h3, h4, h5 , h6 {
     font-family: 'Ubuntu', sans-serif; font-weight:normal;
 }
 
+
+body {
+    padding-top: 70px;
+}
 a {
     text-decoration:none;
     color:#5993bb;
@@ -36,3 +40,8 @@ a.button.light {
     color:#fff;
 }
 
+/* media-object images*/ 
+.cat-images {
+    height: 100px;
+    width: 100px;
+}

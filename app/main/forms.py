@@ -1,13 +1,14 @@
 from flask_wtf import FlaskForm
-from wtforms import TextAreaField, StringField, PasswordField, BooleanField, SubmitField
+from wtforms import SelectField, TextAreaField, StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
 from wtforms import ValidationError
-from ..models import User, Career, Category, Comment
+from flask_wtf.file import FileField, FileAllowed, FileRequired
+
 
 class CareerForm(FlaskForm):
+	image = FileField('Career Image')
 	name = StringField('Title', validators=[DataRequired(), Length(1, 64)])
 	overview = TextAreaField('Overview', validators=[DataRequired()])
-	submit = SubmitField('Create')
 
 class CategoryForm(FlaskForm):
 	name = StringField('Title', validators=[DataRequired(), Length(1, 64)])

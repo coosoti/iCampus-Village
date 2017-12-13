@@ -6,6 +6,7 @@ from flask_mail import Mail
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from config import config
+import os
 
 bootstrap = Bootstrap()
 mail = Mail()
@@ -16,6 +17,8 @@ admin = Admin()
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
+
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 def create_app(config_name):
     app = Flask(__name__)
